@@ -1,0 +1,9 @@
+{
+  "printWith": 120,
+  "tabWith": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "trialingComma": "none",
+  "bracketSpacing": true
+}
