@@ -4,52 +4,31 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 
-import { FormControl, FormLabel, Input, FormErrorMessage, FormHelperText, Flex, Select, Button, Spinner, ButtonGroup } from '@chakra-ui/react'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { Flex, Button, ButtonGroup } from '@chakra-ui/react'
 import axios from 'axios'
 import { useRouter } from 'next/router'
-import { useForm } from 'react-hook-form'
-import { DevTool } from '@hookform/devtools'
 import { env } from '~/env.mjs'
+import MyForm from '~/components/ui/forms/MyForm'
+import MyInput from '~/components/ui/inputs/MyInput'
+import MySelect from '~/components/ui/selects/MySelect'
+import { ClientSchema, DOC_TYPES, type Client, type ClientFormProps } from '~/schemas/ClientSchema'
 
 
-const DOC_TYPES = ["RUC", "CUIT", "Cedula", "Pasaporte"] as const;
-
-const schema = z.object({
-    firstName: z.string().min(3),
-    lastName: z.string().min(3),
-    email: z.string().email("Email format invalid"),
-    document_type: z.enum(DOC_TYPES),
-    document_value: z.string()
-})
-
-export type Client = z.infer<typeof schema>
-
-interface Props {
-    clientId?: string,
-}
-
-
-const ClientForm = ({ clientId }: Props) => {
+const ClientForm = ({ clientId }: ClientFormProps) => {
     const router = useRouter()
+    const setDefaultValues = async () => {
+        if (!clientId) return
+        const { data } = await axios.get(`${env.NEXT_PUBLIC_BACKEND_BASE_URL}/clients/${clientId}`,
+            { withCredentials: true }
+        )
+        return data.data
+    }
 
-    const { register, control, formState: { errors, isLoading }, handleSubmit, reset } = useForm<Client>({
-        resolver: zodResolver(schema),
-        defaultValues: async () => {
-            if (!clientId) return
-            const { data } = await axios.get(`${env.NEXT_PUBLIC_BACKEND_BASE_URL}/clients/${clientId}`,
-                { withCredentials: true }
-            )
-            return data.data
-        }
-    })
-
-    const onSubmit = async (data: Client) => {
+    const onSubmit = async (data: Client, reset: () => void) => {
         const PARAMS = clientId ? `${clientId}` : ""
         console.log(data)
         await axios(
-            `${env.NEXT_PUBLIC_BACKEND_BASE_URL}/clients/${PARAMS}}`,
+            `${env.NEXT_PUBLIC_BACKEND_BASE_URL}/clients/${PARAMS}`,
             {
                 method: !!clientId ? "PUT" : "POST",
                 data,
@@ -58,87 +37,33 @@ const ClientForm = ({ clientId }: Props) => {
         )
         reset()
         void router.push('/clients')
-
     }
+    const onError = (errors: any) => console.log(errors)
     return (
-        <>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <FormControl marginBottom={5} boxShadow={4} isInvalid={!!errors.firstName} isRequired>
-                    <FormLabel>First Name</FormLabel>
-                    <Input
-                        type="text"
-                        placeholder="Enter your name"
-                        {...register("firstName")} />
-                    <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
-                </FormControl>
-                <FormControl marginBottom={5} isInvalid={!!errors.lastName} isRequired>
-                    <FormLabel>Last Name</FormLabel>
-                    <Input
-                        type="text"
-                        placeholder="Enter your last Name"
-                        {...register("lastName")} />
-                    <FormHelperText>{errors.lastName?.message}</FormHelperText>
-                </FormControl>
-                <FormControl marginBottom={5} isInvalid={!!errors.email} isRequired>
-                    <FormLabel>Email address</FormLabel>
-                    <Input
-                        type="text"
-                        placeholder="Enter your email"
-                        {...register("email")} />
-                    <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
-                    <FormHelperText>We ll never share your email.</FormHelperText>
-                </FormControl>
-
-                <Flex gap={4} marginBottom={4}>
-                    <FormControl marginBottom={5} isInvalid={!!errors.document_type} isRequired>
-                        <FormLabel>Document Type</FormLabel>
-                        <Select
-                            placeholder='Select one'
-                            {...register("document_type")}>
-                            {DOC_TYPES.map(
-                                docType => <option key={docType} value={docType}>{docType}</option>
-                            )}
-                        </Select>
-                        <FormErrorMessage>{errors.document_type?.message}</FormErrorMessage>
-                    </FormControl>
-                    <FormControl marginBottom={5} isInvalid={!!errors.document_value} isRequired>
-                        <FormLabel>Document Number</FormLabel>
-                        <Input
-                            type="text"
-                            placeholder="Document value"
-                            {...register("document_value")} />
-                        <FormErrorMessage>{errors.document_value?.message}</FormErrorMessage>
-                        <FormHelperText>We ll never share your credentials.</FormHelperText>
-                    </FormControl>
-
-                </Flex>
-                <ButtonGroup>
-                    <Button
-                        colorScheme='purple'
-                        type="submit"
-                    >
-                        {isLoading ?
-                            <Spinner
-                                thickness='4px'
-                                speed='0.65s'
-                                emptyColor='gray.200'
-                                color='blue.500'
-                                size='md' />
-                            :
-                            (clientId ? 'Editar' : 'Crear')}
-                    </Button>
-                    <Button
-                        colorScheme='gray'
-                        type="button"
-                        onClick={() => router.back()}
-                    >
-                        Back
-                    </Button>
-                </ButtonGroup>
-            </form>
-            <DevTool control={control} />
-        </>
+        <MyForm onSubmit={(onSubmit)} onError={onError} zodSchema={ClientSchema} defaultValues={setDefaultValues}>
+            <MyInput<Client> fieldName="firstName" label='First Name' placeholder='First Name' />
+            <MyInput<Client> fieldName="lastName" label='Last Name' placeholder='Last Name' />
+            <MyInput<Client> fieldName='email' label='Email' placeholder='Email' />
+            <Flex gap={4} marginBottom={4} flexDir={"row"}>
+                <MySelect<Client> options={DOC_TYPES} fieldName="document_type" label='Document Types' placeholder='Choose one' flex={4} />
+                <MyInput fieldName='document_value' label='Document' placeholder='Document' />
+            </Flex>
+            <ButtonGroup>
+                <Button
+                    colorScheme='purple'
+                    type="submit"
+                >
+                    {(clientId ? 'Editar' : 'Crear')}
+                </Button>
+                <Button
+                    colorScheme='gray'
+                    type="button"
+                    onClick={() => router.back()}
+                >
+                    Back
+                </Button>
+            </ButtonGroup>
+        </MyForm >
     )
 }
-
 export default ClientForm

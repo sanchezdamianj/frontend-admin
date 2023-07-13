@@ -2,22 +2,12 @@
 import { Button, ButtonGroup, Card, Flex, Text } from '@chakra-ui/react'
 import React from 'react'
 import { useRouter } from 'next/router'
-import { type Client } from './ClientForm'
-
-export interface ClientFromDB extends Client {
-    _id: string,
-    sales?: {
-        count: number,
-        amount: number
-    }
-}
+import { type ClientListProps } from '~/schemas/ClientSchema'
 
 
-export interface ClientDB {
-    clients: ClientFromDB[]
-}
 
-const ClientsList = ({ clients = [] }: ClientDB) => {
+
+const ClientsList = ({ clients = [] }: ClientListProps) => {
     const router = useRouter()
     return (
         <Flex flexDirection="column" gap={4} mt={2} p={8} bg={"gray.50"} >
