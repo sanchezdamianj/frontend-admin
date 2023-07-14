@@ -1,5 +1,5 @@
 import React from 'react'
-import { useFieldArray } from 'react-hook-form'
+import { useFieldArray, useFormContext } from 'react-hook-form'
 import { DeleteIcon } from '@chakra-ui/icons'
 
 interface Props<T> {
@@ -8,7 +8,8 @@ interface Props<T> {
 }
 
 export default function MyDeleteIcon<T>({ fieldName, index }: Props<T>) {
-    const { remove } = useFieldArray({ name: fieldName as string })
+    const { control } = useFormContext()
+    const { remove } = useFieldArray({ control, name: fieldName as string })
     return (
         <DeleteIcon
             color={index > 0 ? "red.200" : "white"}

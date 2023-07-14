@@ -1,7 +1,10 @@
-import { type Payment_method } from '~/schemas/SalesSchema';
+import {
+  type ProductFormState,
+  type Payment_method,
+} from '~/schemas/SalesSchema';
 
 interface DefaultValues {
-  [key: string]: Payment_method;
+  [key: string]: Payment_method | ProductFormState;
 }
 
 const DEFAULT_VALUES: DefaultValues = {
@@ -10,6 +13,12 @@ const DEFAULT_VALUES: DefaultValues = {
     amount: 0,
     time_unit: 'Days',
     time_value: 0,
+  },
+  products: {
+    code: '',
+    name: '',
+    quantity: 0,
+    unit_price: 0,
   },
 };
 

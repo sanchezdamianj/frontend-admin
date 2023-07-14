@@ -6,38 +6,33 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { Flex } from '@chakra-ui/react'
 import React, { useEffect } from 'react'
-import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import MyDeleteIcon from '~/components/ui/icons/DeleteIcon'
 import MySearchIcon from '~/components/ui/icons/SearchIcon'
 import MyInput from '~/components/ui/inputs/MyInput'
-import { type Sale } from '~/schemas/SalesSchema'
+import type { Product, Sale, ProductFormState } from '~/schemas/SalesSchema'
 
 interface Props {
     fieldName: keyof Sale,
 }
 
 export default function ProductAdd({ fieldName }: Props) {
-    const { fields } = useFieldArray({ name: fieldName as string })
-    const { setValue, getValues } = useFormContext()
-    const productsState = useWatch({
-        name: fieldName
-    })
+    const { setValue, watch } = useFormContext()
+    const products = watch(fieldName)
 
     useEffect(() => {
-        const currentProducts = getValues(fieldName)
-        if (currentProducts.length > 0) {
-            const amount = currentProducts?.reduce((prev: number, curr: number) => prev + curr.quantity * curr.unit_price, 0)
-
+        if (products.length > 0) {
+            const amount = products?.reduce((prev: number, curr: ProductFormState) => prev + (curr.quantity) * (curr.unit_price), 0)
             // setTotalAmount(amount)
             setValue(`payment_method.0.total_amount`, amount)
         }
-    }, [productsState])
+    }, [products, setValue])
 
     return (
         <Flex flexDir={"column"} alignItems="flex-start" mb={4}>
             {
-                fields.map((_, index: number) => (
-                    <Flex key={index} gap={2} alignItems="flex-end" mb={5}>
+                products.map((product: Product, index: number) => (
+                    <Flex key={index} gap={2} alignItems="center" justifyContent={"center"} mb={5}>
                         <MySearchIcon index={index} />
                         <MyInput fieldName={`products.${index}.code`} label="Code" showLabel={index === 0} />
                         <MyInput fieldName={`products.${index}.name`} label="Description" showLabel={index === 0} />

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Button } from '@chakra-ui/react'
 import React from 'react'
-import { useFieldArray } from 'react-hook-form'
+import { useFieldArray, useFormContext } from 'react-hook-form'
 import DEFAULT_VALUES from '~/components/constants'
 import { type Sale } from '~/schemas/SalesSchema'
 
@@ -10,9 +10,11 @@ interface Props {
 }
 
 export default function AdderButton({ fieldName }: Props) {
-    const { append } = useFieldArray({ name: fieldName })
+    const { control } = useFormContext()
+    const { append } = useFieldArray({ control, name: fieldName })
 
     const defaultValue = DEFAULT_VALUES[fieldName as string]
+
     return (
         <Button
             onClick={() => append(defaultValue)}
