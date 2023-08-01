@@ -8,6 +8,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 import SalesList from "~/components/entities/sales/SalesList";
+import { AppHeader } from "~/components/global/AppHeader";
 
 import { env } from "~/env.mjs";
 
@@ -29,14 +30,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Container marginTop={8}>
-        <Button
-          colorScheme="green"
-          onClick={() => {
-            void router.push("/login");
-          }}
-        >
-          Login
-        </Button>
+        <AppHeader />
         <Card p={4}>
           <Heading>Sales</Heading>
           {isLoading ?

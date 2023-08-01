@@ -38,7 +38,7 @@ const MyForm = ({ defaultValues, zodSchema, onSubmit, onError, children }: Props
             <form onSubmit={methods.handleSubmit((data) => onSubmit(data, methods.reset), onError)}>
                 {children}
             </form>
-            <DevTool control={methods.control} />
+            {/* <DevTool control={methods.control} /> */}
         </FormProvider >
     )
 }
